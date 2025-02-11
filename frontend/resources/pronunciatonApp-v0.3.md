@@ -1,24 +1,35 @@
 # PronunciationApp Frontend v0.3
 
-## Reference Lab
+## References
 
-- [GitHub - AlbertProfe/howRenderCycleWorks](https://github.com/AlbertProfe/howRenderCycleWorks)
-
-- [GitHub - AlbertProfe/basicRegisterForm](https://github.com/AlbertProfe/basicRegisterForm)
+**Labs**
 
 - [pronunciationApp -test-leaflet #684324f](https://github.com/AlbertProfe/pronunciationApp/tree/684324f309ae643e0d32f9d2d660a9500cd09fe5/frontend/pronunciationAppFront)
 
-## Basic React Register Form
+**Basic React Register Form**
 
 > Register form using HTML tags for a user with username, email, and password.
 
-### Reference
+- [GitHub - AlbertProfe/basicRegisterForm](https://github.com/AlbertProfe/basicRegisterForm)
+
+**How render cycle woks**
+
+> React's render cycle is a fundamental concept that every React developer
+>  should understand. It consists of three main phases: trigger, render, 
+> and commit. Let's explore each phase and see how we can observe them 
+> using different hooks like `useRef`, `useEffect`, and `useState`.
+
+- https://github.com/AlbertProfe/howRenderCycleWorks
+
+**Reference: exercices react.dev**
 
 - [Setting state triggers renders](https://react.dev/learn/state-as-a-snapshot#setting-state-triggers-renders)
 
 - [Copying objects with the spread syntax](https://react.dev/learn/updating-objects-in-state#copying-objects-with-the-spread-syntax)
 
 - [Using a single event handler for multiple fields](https://react.dev/learn/updating-objects-in-state#using-a-single-event-handler-for-multiple-fields)
+
+## React basic register form
 
 ### Summary
 
@@ -77,7 +88,7 @@ This pattern is powerful because it allows you to completely change what a compo
 4. Inside the callback, a new object is created and returned. This object:
    
    - <mark>Spreads all properties from the previous state</mark> (`...prevData`)
-   - Adds or updates a property using computed property name syntax `[name]: value`
+   - Adds or updates a property using **computed property name** syntax `[name]: value`
 
 ```jsx
   const handleChange = (e) => {
@@ -200,8 +211,6 @@ export default function RegisterForm() {
 
 3. The UI is styled using Material-UI components like `Box`, `Typography`, and `Button`.
 
-
-
 `./frontend/pronunciationAppFront/src/pages/Home.jsx`
 
 ```jsx
@@ -291,8 +300,6 @@ React component for a login form using Material-UI (MUI):
 4. The form uses <mark>MUI components</mark> like `TextField` and `Button`, styled according to the custom theme.
 
 5. It includes basic error handling and display for invalid inputs.
-
-
 
 `frontend/pronunciationAppFront/src/pages/Login.jsx`
 
@@ -465,3 +472,146 @@ export default function LoginForm() {
   );
 }
 ```
+
+## JS ES6
+
+**JS 2015 (ES6)** also known as **ECMAScript 6 (ES6)**, **ECMAScript 6 (ES6)** is a significant update to JavaScript, introducing arrow functions, classes, template literals, let and const for variable declaration, enhanced object literals, destructuring, and more modern features for better code organization and readability.
+
+- [JavaScript ES6](https://www.w3schools.com/Js/js_es6.asp)
+
+### Syntax and tools used
+
+```jsx
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+```
+
+The code you provided contains several core key JavaScript concepts: 
+
+1. **Destructuring**
+   
+   ```javascript
+   const { name, value } = e.target;
+   ```
+   
+   This line extracts the 'name' and 'value' properties from the e.target object. It's a shorthand way of writing:javascript
+   
+   ```javascript
+   const name = e.target.name; 
+   const value = e.target.value;
+   ```
+   
+   The left-hand side { name, value } is a pattern that matches the structure of the object being destructured (e.target). It tells JavaScript to look for properties named name and value in the object.
+   
+   ```javascript
+   const e = { target: { name: "username", value: "JohnDoe" } };
+   const { name, value } = e.target;
+   console.log(name); // Output: "username"
+   console.log(value); // Output: "JohnDoe"
+   ```
+
+2. **Spread operator (...)**
+   
+   ```javascript
+   ...prevData
+   ```
+   
+   The spread operator is used to create a copy of all the properties from the prevData object. It's used here to maintain all the existing form data while updating only the changed field.
+   
+   ```javascript
+    const prevData = { firstName: "John", lastName: "Smith" }; // Initial state
+   
+    const newData = {
+      ...prevData, // Spread all existing properties:  firstName: "John", lastName: "Smith"
+      [name]: value, // Update the new state
+    };
+   ```
+
+3. **Computed property name**
+   
+      This syntax allows using the value of 'name' as the property name, dynamically updating the correct form field
+   
+   ```javascript
+      const prevData = { firstName: "John", lastName: "Smith" }; // Initial state
+   const name = "lastName"; // The property we want to update
+   const value = "Doe"; // The new value for the property
+   
+   const newData = {
+     ...prevData, // Spread all existing properties
+     [name]: value, // Update the 'lastName' property
+   };
+   
+   console.log(newData); 
+   // Output: { firstName: "John", lastName: "Doe" }
+   ```
+
+4. **Combining or Overwriting Properties**
+   You can combine or overwrite properties when creating a new object. If multiple objects are spread, properties from later objects overwrite those from earlier ones
+   
+   ```javascript
+      const updatedData = { ...prevData, lastName: "Doe" };
+   console.log(updatedData);
+   // Output: { firstName: "John", lastName: "Doe" }
+   ```
+
+5. **Literal Object: Curly Braces {}**
+    Curly braces are required because they define an object literal in JavaScript. Without them, the spread operator would not work correctly for objects.
+   
+   ```javascript
+     const prevData = { firstName: "John", lastName: "Smith" };
+   
+     // Using spread operator to copy properties into a new object
+     const newData = { ...prevData };
+   
+     console.log(newData);
+     // Output: { firstName: "John", lastName: "Smith" }
+   ```
+
+6. **Implicit Return vs. Non-Implicit (Explicit) Return in JavaScript**
+    An implicit return occurs when a function automatically returns the result of a single expression without requiring the return keyword. This is possible with arrow functions in JavaScript. Implicit returns make code more concise and are often used for simple, one-liner functions.
+   
+   ```javascript
+     const add = (a, b) => {
+         const sum = a + b; // Additional logic
+         return sum; // Explicitly returning the value
+     };
+     console.log(add(2, 3)); // Output: 5
+   ```
+
+7. **Syntax Element Parentheses**
+   Parentheses around parameters are required in some cases (e.g., multiple parameters), while parentheses around expressions are purely optional for grouping or readability purposes
+   
+   ```javascript
+    const square = x => x * x;
+    console.log(square(3)); // Output: 9
+   
+    const square = (x) => (x * x);
+    console.log(square(3)); // Output: 9
+   ```
+   
+   ### Cheatsheet
+   
+   | Symbol    | Use Case                  | Example                                                   |
+   | --------- | ------------------------- | --------------------------------------------------------- |
+   | `{}`      | Object destructuring      | `const { name, age } = obj;`                              |
+   | `[]`      | Array destructuring       | `const [first, second] = arr;`                            |
+   | `()`      | Function parameters       | `const func = ({ name }) => console.log(name);`           |
+   | No Symbol | Invalid for destructuring | `const name, age = obj;` (This will throw a syntax error) |
+   
+   | Syntax Element         | `x => x * x`                      | `(x) => (x * x)`             |
+   | ---------------------- | --------------------------------- | ---------------------------- |
+   | Parameter Parentheses  | Omitted (valid for single params) | Explicitly included          |
+   | Expression Parentheses | Not used                          | Used for grouping (optional) |
+   | Return Behavior        | Implicit return                   | Implicit return              |
+   
+   | Feature     | Implicit Return                             | Explicit Return                             |
+   | ----------- | ------------------------------------------- | ------------------------------------------- |
+   | Syntax      | No `return` keyword or curly braces needed. | Requires `return` keyword and curly braces. |
+   | Use Case    | Simple one-liner expressions.               | More complex logic or multiline functions.  |
+   | Example     | `const square = x => x * x;`                | `const square = x => { return x * x; };`    |
+   | Readability | Concise and clean for short code.           | Better for clarity in complex logic.        |
