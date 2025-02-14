@@ -24,7 +24,7 @@ It is a Java specification for **managing, persisting, and accessing relational 
 
 JPA is a **standard API for ORM (Object-Relational Mapping)** and provides a way to map Java objects to relational databases
 
-## Word 1:n Pronunciation
+## Word 1:n Pronunciation Bidirectional
 
 ```java
 @Entity
@@ -321,6 +321,134 @@ Example Postman requests:
   "active": true
 ```
 
+## Word 1:n Pronunciation Unidirectional
+
+> Let's create the two unidirectional versions of the relationship between `Word` and `Pronunciation`.
+
+**Version 1: Unidirectional One-to-Many (Word owns the relationship)**
+
+In this version, the `Word` entity knows about the `Pronunciation` entities, but the `Pronunciation` entity doesn't have a direct reference back to the `Word`.
+
+```java
+@Entity
+public class Word {
+    @Id
+    private String id;
+    private String wordName;
+    private String definition;
+    private String phoneticSpelling;
+    private String sentence;
+    private boolean isActive;
+    private int level;
+
+    @OneToMany
+    @JoinColumn(name = "WORD_ID_FK") // Foreign key in Pronunciation table
+    private List<Pronunciation> pronunciations;
+
+    // Constructors, getters, and setters
+
+}
+
+@Entity
+public class Pronunciation {
+    @Id
+    private String id;
+    private String audioDescription;
+    private long audioDuration;
+    private long audioSize;
+    private String audioUrl;
+    private String definition;
+    private String phoneticSpelling;
+    private String speakerGender;
+
+    public enum Type {
+        RECORDED, SAMPLE
+    }
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
+    // Remove the ManyToOne relationship
+   // @JsonIgnore
+   // @ManyToOne
+   // @JoinColumn(name = "WORD_ID_FK")
+   // private Word word;
+
+    // Constructors, getters, and setters
+
+}
+```
+
+**Changes:**
+
+* In the `Word` entity, the `@OneToMany` annotation now has a `@JoinColumn(name = "WORD_ID_FK")`. This specifies that the `WORD_ID_FK` column in the `Pronunciation` table will be used as the foreign key.
+* In the `Pronunciation` entity, the `@ManyToOne` relationship and the associated `word` field are removed.
+
+**Version 2: Unidirectional Many-to-One (Pronunciation knows about Word)**
+
+In this version, a `Pronunciation` entity knows to which `Word` it belongs, but the `Word` entity has no direct knowledge of the `Pronunciation` entities.
+
+```java
+@Entity
+public class Word {
+    @Id
+    private String id;
+    private String wordName;
+    private String definition;
+    private String phoneticSpelling;
+    private String sentence;
+    private boolean isActive;
+    private int level;
+
+    // Remove the OneToMany relationship
+    //@OneToMany
+    //@JoinColumn(name = "WORD_ID_FK") // Foreign key in Pronunciation table
+    //private List<Pronunciation> pronunciations;
+
+    // Constructors, getters, and setters
+}
+
+@Entity
+public class Pronunciation {
+    @Id
+    private String id;
+    private String audioDescription;
+    private long audioDuration;
+    private long audioSize;
+    private String audioUrl;
+    private String definition;
+    private String phoneticSpelling;
+    private String speakerGender;
+
+    public enum Type {
+        RECORDED, SAMPLE
+    }
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
+    // Add the ManyToOne relationship
+    @ManyToOne
+    @JoinColumn(name = "WORD_ID_FK")
+    private Word word;
+
+    // Constructors, getters, and setters
+
+}
+```
+
+**Changes:**
+
+* In the `Word` entity, the `@OneToMany` relationship and its associated `pronunciations` field are removed.
+* In the `Pronunciation` entity, the `@ManyToOne` relationship is added with the `@JoinColumn(name = "WORD_ID_FK")`.  This indicates that the `Pronunciation` entity has a foreign key relationship with the `Word` entity.
+
+**Important Considerations:**
+
+* In both unidirectional approaches, the database schema will still include a `WORD_ID_FK` column in the `Pronunciation` table.
+* Choosing the appropriate unidirectional approach depends on your application's specific needs and how you intend to query and access the data. The first version will be good if you mostly work with `Word` and their `Pronunciation` and the second one if the oposite.
+  
+  
+
+
+
 ## Word 1:n StageWord
 
 Let's integrate the `StageWord` entity into the existing `Word` entity with a **one-to-many** relationship:
@@ -345,7 +473,7 @@ public class Word {
     @OneToMany(mappedBy = "word", 
                 cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<StageWord> stageWords;
-    
+
     // ... getters and setters ...
 
 }
