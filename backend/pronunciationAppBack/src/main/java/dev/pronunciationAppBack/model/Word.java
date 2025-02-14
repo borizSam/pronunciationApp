@@ -2,6 +2,10 @@ package dev.pronunciationAppBack.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+
+
+import java.util.List;
 
 @Entity
 public class Word {
@@ -15,6 +19,9 @@ public class Word {
     private boolean isActive;
     private int level;
 
+    @OneToMany(mappedBy = "word")
+    private List<Pronunciation> pronunciations;
+
     public Word() {}
 
     public Word(String id, String wordName, String definition, String phoneticSpelling, String sentence, boolean isActive, int level) {
@@ -25,6 +32,14 @@ public class Word {
         this.sentence = sentence;
         this.isActive = isActive;
         this.level = level;
+    }
+
+    public List<Pronunciation> getPronunciations() {
+        return pronunciations;
+    }
+
+    public void setPronunciations(List<Pronunciation> pronunciations) {
+        this.pronunciations = pronunciations;
     }
 
     public String getId() {
