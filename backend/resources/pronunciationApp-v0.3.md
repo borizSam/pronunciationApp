@@ -39,7 +39,6 @@ public class Word {
     private int level;
 }
 
-
 // ..
 @Entity
 public class Pronunciation {
@@ -52,10 +51,10 @@ public class Pronunciation {
     private String definition;
     private String phoneticSpelling;
     private String speakerGender;
-    public enum type {
+    public enum Type {
         RECORDED, SAMPLE
     }
-    private type type;
+    private Type type;
 }
 ```
 
@@ -444,10 +443,22 @@ public class Pronunciation {
 
 * In both unidirectional approaches, the database schema will still include a `WORD_ID_FK` column in the `Pronunciation` table.
 * Choosing the appropriate unidirectional approach depends on your application's specific needs and how you intend to query and access the data. The first version will be good if you mostly work with `Word` and their `Pronunciation` and the second one if the oposite.
-  
-  
 
+## Summary Table
 
+| Relationship Type                   | Owner         | Inverse       | Word (Fields & Annotations)                                                                         | Pronunciation (Fields & Annotations)                                                                                                  |
+| ----------------------------------- | ------------- | ------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Bidirectional                       | Pronunciation | Word          | `@OneToMany(mappedBy = "word")`<br>`private List<Pronunciation> pronunciations;`                    | `@ManyToOne`<br>`@JoinColumn(name = "WORD_ID_FK")`<br>`private Word word;`<br>`@JsonIgnore` (optional, to prevent infinite recursion) |
+| Unidirectional (Word owns)          | Word          | Pronunciation | `@OneToMany`<br>`@JoinColumn(name = "WORD_ID_FK")`<br>`private List<Pronunciation> pronunciations;` | No field referencing Word.                                                                                                            |
+| Unidirectional (Pronunciation owns) | Pronunciation | Word          | No field referencing Pronunciation.                                                                 | `@ManyToOne`<br>`@JoinColumn(name = "WORD_ID_FK")`<br>`private Word word;`                                                            |
+
+**Explanation of the Table Columns:**
+
+* **Relationship Type:** The type of relationship between the `Word` and `Pronunciation` entities (bidirectional, unidirectional from `Word`, unidirectional from `Pronunciation`).
+* **Owner:** The entity that "owns" the relationship.  The owning side is responsible for managing the foreign key column in the database.
+* **Inverse:** The entity on the non-owning (or inverse) side of the relationship.
+* **Word (Fields & Annotations):** Shows if Word contains field and annotations.
+* **Pronunciation (Fields & Annotations):** Shows if Pronunciation contains field and annotations.
 
 ## Word 1:n StageWord
 
