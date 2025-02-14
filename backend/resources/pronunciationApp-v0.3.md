@@ -122,10 +122,12 @@ public class Pronunciation {
     private String definition;
     private String phoneticSpelling;
     private String speakerGender;
-    public enum type {
+
+    public enum Type {
         RECORDED, SAMPLE
     }
-    private type type;
+    @Enumerated(EnumType.STRING)
+    private Type type;
 
     @JsonIgnore
     @ManyToOne
@@ -318,3 +320,111 @@ Example Postman requests:
   ],
   "active": true
 ```
+
+## Word 1:n StageWord
+
+Let's integrate the `StageWord` entity into the existing `Word` entity with a **one-to-many** relationship:
+
+```java
+@Entity
+public class Word {
+
+    @Id
+    private String id;
+    private String wordName;
+    private String definition;
+    private String phoneticSpelling;
+    private String sentence;
+    private boolean isActive;
+    private int level;
+
+    @OneToMany(mappedBy = "word",
+                cascade = CascadeType.ALL, fetch = FetchType.LAZY))
+    private List<Pronunciation> pronunciations;
+
+    @OneToMany(mappedBy = "word", 
+                cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<StageWord> stageWords;
+    
+    // ... getters and setters ...
+
+}
+```
+
+```java
+@Entity
+public class StageWord {
+
+    @Id
+    private String id;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    private int listenedQty;
+    private Date lastUpdatedDateTime;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "WORD_ID_FK", nullable = false)
+    private Word word;
+
+    public enum Status {
+        DONE, PENDING, FAIL
+    }
+}
+```
+
+Key points:
+
+* **`Word` Entity:**
+  
+  * `@OneToMany(mappedBy = "word", cascade = CascadeType.ALL, fetch = FetchType.LAZY)`:  This annotation establishes the one-to-many relationship.
+    * `mappedBy = "word"`:  Specifies that the `word` field in the `StageWord` entity owns the relationship.
+    * `cascade = CascadeType.ALL`:  Ensures that all operations (persist, merge, remove) on a `Word` entity are cascaded to its associated `StageWord` entities. This is useful for managing the lifecycle of the related entities.
+    * `fetch = FetchType.LAZY`:  Loads the `stageWords` only when they are accessed, improving performance.
+
+* **`StageWord` Entity:**
+  
+  * `@ManyToOne(fetch = FetchType.LAZY)`: Establishes the many-to-one relationship back to the `Word` entity.
+  * `@JoinColumn(name = "WORD_ID_FK", nullable = false)`: Specifies the foreign key column in the `StageWord` table that references the `Word` table.  `nullable = false` ensures that every `StageWord` must be associated with a `Word`.
+  * `@JsonIgnore`: This annotation prevents infinite recursion during serialization when fetching `Word` objects with their associated `StageWord` objects, which in turn would try to serialize the `Word` object again.
+
+## Enum
+
+- [Enum](https://drive.google.com/drive/folders/1I68HPNDff_XCo0NbxuJjlOkap0kUNTxe?usp=drive_link)
+
+- [Enum Oracle](https://docs.oracle.com/javase/tutorial/java/javaOO/enum.html)
+
+> `enum` is commonly used in JPA entities to represent a field that can only have a specific set of predefined values, providing type safety and clear semantics in your Java code while ensuring proper persistence in the database.
+
+1. Enum Definition:
+   
+   ```java
+   public enum Type {
+    RECORDED, SAMPLE
+   }
+   ```
+   
+   This defines an enumeration called `Type` with two possible values: `RECORDED` and `SAMPLE`. `Enums` in Java are used to define a fixed set of constants.
+
+2. Field Declaration:
+   
+   ```java
+   @Enumerated(EnumType.STRING)
+   private Type type;
+   ```
+   
+   This declares a private field named `type` of the `Type` enum type. 
+   
+   The `@Enumerated` annotation is used to specify how the enum should be persisted in the database.
+
+Key points:
+
+1. The `@Enumerated` annotation is from the JPA (Java Persistence API) and is used to specify how an enum type should be persisted in the database.
+
+2. `EnumType.STRING` indicates that the enum will be stored as a string in the database. This means the actual names of the enum constants (`"RECORDED"` or `"SAMPLE"`) will be stored, rather than their ordinal values.
+
+3. Using `EnumType.STRING` is often preferred over the default `EnumType.ORDINAL` because it's more robust against changes in the enum order and provides better readability in the database.
+
+4. When retrieving data from the database, **JPA will automatically convert the string back into the corresponding enum value.**
